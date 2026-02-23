@@ -1,4 +1,4 @@
-const APP_VERSION = "5.0"; // Naikkan versi karena banyak fitur baru
+const APP_VERSION = "5.2"; // Naikkan versi karena banyak fitur baru
 
 function switchPage(page, el) {
     document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
@@ -60,16 +60,19 @@ function showUpdateNotice() {
             title: `<strong>Imsakiyah Pro v${APP_VERSION}</strong>`,
             icon: 'success',
             html: `
-                <div style="text-align: left; font-size: 0.9rem; line-height: 1.5;">
-                    <p style="margin-bottom: 10px; font-weight: bold; color: var(--primary);">Apa yang baru di update ini?</p>
-                    <ul style="padding-left: 18px; margin: 0;">
-                        <li style="margin-bottom: 8px;"><b>Murottal Audio:</b> Dengarkan lantunan ayat langsung di dalam aplikasi.</li>
-                        <li style="margin-bottom: 8px;"><b>Navigasi Surah:</b> Pindah ke surah sebelum/sesudah dengan sekali klik tanpa balik ke daftar.</li>
-                        <li style="margin-bottom: 8px;"><b>UI Refresh:</b> Tampilan Al-Quran lebih proporsional (Anti-Lonjong) dan nyaman dibaca.</li>
-                        <li style="margin-bottom: 8px;"><b>Smart Dark Mode:</b> Perbaikan box terjemahan agar tidak silau di malam hari.</li>
-                        <li><b>Tombol Share:</b> Bagikan jadwal imsakiyah dengan tampilan tombol WhatsApp yang baru.</li>
+                <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
+                    <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
+                    <p>Alhamdulillah, pembaruan telah tersedia:</p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li>🔍 <b>Smart Search:</b> Autocomplete kota lebih cepat.</li>
+                        <li>🤔 <b>Saran Typo:</b> "Maksud Anda" untuk koreksi nama kota.</li>
+                        <li>🧭 <b>Kompas Fix:</b> Posisi piringan kini presisi di tengah.</li>
+                        <li>📳 <b>Haptic:</b> HP bergetar saat tepat arah Kiblat.</li>
+                        <li>🌙 <b>Dark Mode:</b> Kontras terjemahan lebih sejuk.</li>
+                        <li>❌ <b>Quick Clear:</b> Hapus pencarian sekali klik.</li>
                     </ul>
-                </div>`,
+                </div>
+            `,
             confirmButtonText: 'Mulai Menjelajah!',
             confirmButtonColor: '#004d40',
             backdrop: `rgba(0, 77, 64, 0.2)`,
