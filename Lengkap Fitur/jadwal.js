@@ -19,7 +19,6 @@ document.getElementById('inputKota').addEventListener('input', function() {
     const clearBtn = document.getElementById('clearSearchKota'); 
     const val = this.value;
 
-    // Tampilkan/Sembunyikan tombol X
     if (clearBtn) clearBtn.style.display = val.length > 0 ? 'block' : 'none';
 
     if(val.length < 1) { 
@@ -27,37 +26,27 @@ document.getElementById('inputKota').addEventListener('input', function() {
         return; 
     }
 
-    // Lakukan pencarian
     const results = fuse.search(val);
     
     if (results.length > 0) {
-        // Jika ada hasil yang cocok
-        list.innerHTML = results.slice(0, 8).map(r => `
-            <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')">
-                <i class="fas fa-map-marker-alt" style="margin-right:10px; color:#ccc;"></i>
-                ${r.item.lokasi}
-            </div>
-        `).join('');
+        // Map hasil pencarian
+        list.innerHTML = results.slice(0, 8).map((r, index) => {
+            // Jika index 0 (paling atas), tambahkan teks "Maksud anda:"
+            const label = index === 0 ? `<span style="color: var(--primary); font-weight: bold; margin-right: 5px;">Maksud anda:</span>` : '';
+            
+            return `
+                <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')" style="display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer;">
+                    <i class="fas fa-map-marker-alt" style="margin-right:12px; color: #999;"></i>
+                    <div style="color: var(--text); font-weight: 500;">
+                        ${label}${r.item.lokasi}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
         list.style.display = 'block';
     } else {
-        // JIKA TYPO / TIDAK ADA HASIL: Gunakan threshold yang lebih longgar untuk saran
-        const suggestions = fuse.search(val, { limit: 3 }); 
-        
-        if (suggestions.length > 0) {
-            list.innerHTML = `
-                <div style="padding: 10px; font-size: 0.8rem; color: #888; border-bottom: 1px solid #eee;">
-                    🔍 Kota yang anda maksud:
-                </div>
-            ` + suggestions.map(r => `
-                <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')">
-                    <i class="fas fa-question-circle" style="margin-right:10px; color:#ffc107;"></i>
-                    ${r.item.lokasi}
-                </div>
-            `).join('');
-            list.style.display = 'block';
-        } else {
-            list.style.display = 'none';
-        }
+        list.style.display = 'none';
     }
 });
 
