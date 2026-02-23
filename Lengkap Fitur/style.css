@@ -1,0 +1,177 @@
+:root { 
+    --primary: #004d40; --accent: #ffc107; --bg: #f4f7f6; --text: #333; --card: #ffffff; --border: #eee;
+}
+
+/* --- DARK MODE FIX TOTAL --- */
+.dark-theme {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+body.dark-theme {
+    --bg: #121212; --text: #e0e0e0; --card-bg: #1e1e1e; --border: #333;
+}
+
+.dark-theme .card, 
+.dark-theme #ayatView, 
+.dark-theme .bottom-nav,
+.dark-theme #surahList,
+.dark-theme .surah-item {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+.dark-theme .translation-text,
+.dark-theme #isiAyat p,
+.dark-theme .ayat-item div,
+.dark-theme .translation-container {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-left: 4px solid var(--primary);
+}
+
+.dark-theme input, 
+.dark-theme #cariSurah, 
+.dark-theme #kotaSelect,
+.dark-theme .autocomplete-list {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+}
+
+.dark-theme .surah-item b, 
+.dark-theme .arabic-text,
+.dark-theme .arabic-text-main {
+    color: #ffffff !important;
+}
+
+.dark-theme .footer {
+    background-color: #121212 !important;
+    border-top: 1px solid #333 !important;
+}
+
+.dark-theme .footer-note {
+    background-color: #1e1e1e !important;
+    color: #888 !important;
+}
+
+/* --- CORE STYLES --- */
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
+
+.page-content { display: none; padding: 20px; max-width: 450px; margin: auto; padding-bottom: 100px; animation: fadeIn 0.3s; }
+.page-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.card { background: var(--card); padding: 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative; }
+.theme-toggle { position: absolute; top: 15px; right: 15px; background: var(--primary); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; z-index: 10; }
+
+.clock-live { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+.date-live { font-size: 0.9rem; opacity: 0.7; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+.btn-primary, .btn-poster { background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin: 10px 0; display: block; }
+.btn-poster { background: #0288d1; }
+
+/* --- FIX: SEARCH & AUTOCOMPLETE MELAYANG --- */
+.search-container, .search-wrapper { position: relative; margin: 15px 0; width: 100%; }
+
+input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); box-sizing: border-box; outline: none; }
+
+/* Tombol X (Silang) untuk Kota & Surah */
+#clearSearch, #clearSearchKota {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #e0e0e0;
+    color: #666;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 14px;
+    display: none; /* Muncul via JS */
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+/* Dropdown Hasil Pencarian Melayang */
+.autocomplete-list { 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    width: 100%; 
+    background: var(--card); 
+    border: 1px solid var(--border); 
+    z-index: 1000; 
+    border-radius: 0 0 10px 10px; 
+    max-height: 200px; 
+    overflow-y: auto; 
+    text-align: left; 
+    display: none; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.autocomplete-list div { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+.autocomplete-list div:hover { background: rgba(0,0,0,0.05); }
+
+/* --- JADWAL & COUNTDOWN --- */
+.countdown-card { background: var(--primary); color: white; padding: 20px; border-radius: 18px; margin-bottom: 20px; }
+.time-big { font-size: 2.8rem; font-weight: bold; color: var(--accent); }
+.imsak-display { font-size: 4rem; font-weight: bold; color: #d32f2f; line-height: 1.2; }
+
+.jadwal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+.info-box { background: var(--bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.8rem; }
+.info-box b { display: block; font-size: 1.1rem; color: var(--text); }
+
+.btn-gps { background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+.btn-gps:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* --- NAVIGATION --- */
+.bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999; }
+.nav-item { flex: 1; padding: 15px; text-align: center; color: #999; cursor: pointer; font-size: 11px; }
+.nav-item.active { color: var(--primary); font-weight: bold; }
+.nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+
+/* --- QURAN STYLES --- */
+.surah-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; text-align: left; transition: 0.2s; }
+.surah-no { min-width: 35px; height: 35px; background: var(--primary); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; font-size: 14px; }
+.arabic-name { font-family: 'Amiri', serif; font-size: 1.4rem; color: var(--primary); margin-left: auto; }
+
+#ayatView { max-width: 700px; margin: 0 auto; padding: 20px; background: #fff; min-height: 100vh; padding-bottom: 100px; }
+
+.quran-nav-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+.nav-prev-next { display: flex; gap: 10px; width: 100%; }
+.btn-nav-main, .btn-nav-side { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-nav-main { width: 100%; padding: 14px; background: #f0f0f0; color: #333; }
+.btn-nav-side { flex: 1; padding: 12px; background: var(--primary); color: white; }
+
+.audio-player-card { background: linear-gradient(135deg, var(--primary), #00695c); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
+.btn-play-murottal { background: white; color: var(--primary); border: none; padding: 10px 25px; border-radius: 50px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+
+.ayat-box { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+.arabic-text-main, .arabic-text { direction: rtl; text-align: right; font-size: 2.2rem; line-height: 2.8; font-family: 'Amiri', serif; color: #333; margin-bottom: 15px; }
+.translation-container, .translation-text { background: #f9f9f9; padding: 15px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 1.1rem; color: #555; line-height: 1.8; }
+
+/* --- COMPASS --- */
+.compass-wrapper { width: 250px; height: 250px; margin: 30px auto; position: relative; background: #f8f9fa; border-radius: 50%; box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
+.kaaba-mark { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: #e63946; font-size: 24px; z-index: 20; }
+#compassImg {
+    width: 90%;
+    height: 90%;
+    position: relative;
+    transition: transform 0.2s ease-out; /* Perhalus gerakan sensor */
+    transform-origin: center center;
+}.compass-dial { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #3d475f; background-image: repeating-conic-gradient(from -1deg, #3d475f 0 2deg, transparent 2deg 30deg); position: relative; }
+.compass-dial::before { content: "N"; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); color: #e63946; font-weight: bold; font-size: 18px; }
+.compass-needle { width: 12px; height: 80%; background: linear-gradient(to bottom, #e63946 50%, #3d475f 50%); position: absolute; top: 10%; left: calc(50% - 6px); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+
+/* --- POSTER & FOOTER --- */
+#poster-area { position: absolute; left: -9999px; width: 650px; background: white; padding: 30px; color: #333; }
+.poster-table { width: 100%; border-collapse: collapse; }
+.poster-table th { background: var(--primary); color: white; padding: 8px; font-size: 13px; }
+.poster-table td { border: 1px solid #ddd; padding: 6px; text-align: center; font-size: 12px; font-weight: bold; }
+
+.footer { text-align: center; padding: 30px 20px 120px 20px; background: #fdfdfd; border-top: 1px solid #eee; }
+.btn-share { display: inline-flex; align-items: center; gap: 8px; background: #25d366; color: white !important; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; }

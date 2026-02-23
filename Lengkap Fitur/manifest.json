@@ -1,0 +1,21 @@
+{
+  "name": "Imsakiyah Pro Digital",
+  "short_name": "Imsakiyah",
+  "description": "Jadwal Imsakiyah Seluruh Indonesia dengan fitur GPS dan Anti-Typo",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#004d40",
+  "theme_color": "#004d40",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2800/2800411.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2800/2800411.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

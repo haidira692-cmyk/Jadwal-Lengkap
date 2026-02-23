@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imsakiyah Pro v4.5</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div id="notifPopup" style="display:none;">🔔 ALLAHU AKBAR! WAKTU BERBUKA TIBA</div>
+
+<div id="page-jadwal" class="page-content active">
+    <div class="card">
+        <div class="clock-live" id="liveClock">00:00:00</div>
+        <div class="date-live" id="liveDate">Memuat hari...</div>
+            
+        <h2 style="margin: 10px 0;">🌙 Imsakiyah Pro</h2>
+            
+        <button class="btn-gps" id="btnGps" onclick="getLocation()">
+            <i class="fas fa-location-arrow"></i> Deteksi Lokasi Otomatis
+        </button>
+            
+        <div class="search-container">
+            <input type="text" id="inputKota" placeholder="Cari Kota/Kabupaten..." autocomplete="off">
+            <div id="listKota" class="autocomplete-list"></div>
+        </div>
+
+        <div id="resultBox" style="display:none;">
+            <div class="countdown-card" id="countCard">
+                <small id="labelCount">--</small>
+                <div class="time-big" id="textCount">00:00:00</div>
+            </div>
+                
+            <div class="jadwal-box-wrapper">
+                <strong id="resKota">-</strong>
+                <div class="imsak-label">Waktu Imsak</div>
+                <div class="imsak-display" id="resImsak">--:--</div>
+                    
+                <div class="jadwal-grid">
+                    <div class="info-box">Subuh <b id="vSu">--:--</b></div>
+                    <div class="info-box">Dzuhur <b id="vDz">--:--</b></div>
+                    <div class="info-box">Ashar <b id="vAs">--:--</b></div>
+                    <div class="info-box">Maghrib <b id="vMa">--:--</b></div>
+                    <div class="info-box" style="grid-column: span 2;">Isya <b id="vIs">--:--</b></div>
+                </div>
+            </div>
+
+            <button class="btn-poster" onclick="downloadPoster()">
+            <i class="fas fa-image"></i> Download Jadwal 30 Hari
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="page-kiblat" class="page-content">
+    <div class="card">
+        <h2>🧭 Arah Kiblat</h2>
+        <div class="compass-wrapper">
+            <div class="kaaba-mark">▼</div>
+                
+            <div id="compassImg">
+                <div class="compass-dial"></div>
+                <div class="compass-needle"></div>
+            </div>
+        </div>
+        <p id="angleText">Klik tombol untuk mulai</p>
+        <button class="btn-primary" onclick="initKiblat()">Kalibrasi Sensor</button>
+    </div>
+</div>
+
+<div id="page-quran" class="page-content">
+    <div class="card">
+        <div id="quranHeader">
+            <h2 style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                📖 Al-Quran
+            </h2>
+            
+            <div class="search-wrapper" style="position: relative; margin-top: 15px;">
+                <input type="text" id="cariSurah" placeholder="Cari Surah (contoh: Yasin)..." oninput="filterSurah()" 
+                       style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 10px;">
+                
+                <button id="clearSearch" onclick="clearSearch()" 
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                               background: #ccc; color: white; border: none; border-radius: 50%; 
+                               width: 22px; height: 22px; cursor: pointer; display: none; 
+                               line-height: 1; font-weight: bold;">×</button>
+            </div>
+        </div>
+
+        <div id="surahList" style="margin-top: 20px;"></div>
+
+        <div id="ayatView" style="display:none; max-width: 650px; margin: 0 auto;">
+            <button class="btn-kembali" onclick="backToSurah()" style="width: 100%; margin-bottom: 20px;">
+                ← Kembali ke Daftar Surah
+            </button>
+            
+            <h3 id="namaSurahAktif" style="text-align: center; color: var(--primary); font-size: 1.5rem; margin-bottom: 20px;"></h3>
+            
+            <div id="isiAyat"></div>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="switchPage('jadwal', this)">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Jadwal</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('kiblat', this)">
+        <i class="fas fa-kaaba"></i>
+        <span>Kiblat</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('quran', this)">
+        <i class="fas fa-book-open"></i>
+        <span>Al-Quran</span>
+    </div>
+    <div class="nav-item" onclick="toggleTheme()" id="themeToggle">
+        <i class="fas fa-moon"></i>
+        <span>Tema</span>
+    </div>
+</nav>
+
+<div id="poster-area" style="width: 800px; padding: 30px; background: #fff; font-family: sans-serif;">
+    <h2 style="text-align: center; color: #004d40;">JADWAL IMSAKIYAH 1447 H</h2>
+    <h3 id="pKota" style="text-align: center; margin-bottom: 20px;">KOTA ---</h3>
+    
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead style="background: #004d40; color: white;">
+            <tr>
+                <th>No</th>
+                <th>Tgl</th>
+                <th>Imsak</th>
+                <th>Subuh</th>
+                <th>Dzuhur</th>
+                <th>Ashar</th>
+                <th>Maghrib</th>
+                <th>Isya</th>
+            </tr>
+        </thead>
+        <tbody id="pBody">
+            </tbody>
+    </table>
+    
+    <div style="margin-top: 20px; text-align: center; font-size: 12px; color: #777;">
+        Dibuat otomatis oleh Imsakiyah Pro - Sultan Ahmad Haidir
+    </div>
+</div>
+
+<div class="footer">
+    <a href="#" id="waShare" class="btn-share" target="_blank">
+        <i class="fab fa-whatsapp"></i> Bagikan Jadwal
+    </a>
+    <div class="footer-credit">Dibuat oleh <strong>Sultan Ahmad Haidir</strong></div>
+    <div class="footer-note">
+        <strong>Pemberitahuan:</strong> Jadwal sinkron dengan API Kemenag RI. Selalu dahulukan adzan dari masjid setempat. 
+    </div>
+    <p class="copyright">© 2026 Digital Imsakiyah - Versi 5.0</p>
+</div>
+
+    <audio id="adzanAudio" src="https://www.islamcan.com/audio/adhan/azan1.mp3"></audio>
+
+    <script src="app.js"></script>
+    <script src="jadwal.js"></script>
+    <script src="quran.js"></script>
+    <script src="kiblat.js"></script>
+</body>
+</html>
