@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imsakiyah Pro v4.5</title>
+    <title>Imsakiyah</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
@@ -26,8 +26,13 @@
         </button>
             
         <div class="search-container">
-            <input type="text" id="inputKota" placeholder="Cari Kota/Kabupaten..." autocomplete="off">
-            <div id="listKota" class="autocomplete-list"></div>
+            <div class="search-wrapper">
+                <input type="text" id="inputKota" placeholder="Cari Kota atau Kabupaten..." autocomplete="off">
+                
+                <button id="clearSearchKota" onclick="clearInputKota()" style="display:none;">&times;</button>
+                
+                <div id="listKota" class="autocomplete-list"></div>
+            </div>
         </div>
 
         <div id="resultBox" style="display:none;">
@@ -61,11 +66,12 @@
     <div class="card">
         <h2>🧭 Arah Kiblat</h2>
         <div class="compass-wrapper">
-            <div class="kaaba-mark">▼</div>
-                
+            <div class="kaaba-mark">▼</div> 
+            
             <div id="compassImg">
-                <div class="compass-dial"></div>
-                <div class="compass-needle"></div>
+                <div class="compass-dial">
+                    <div class="compass-needle"></div>
+                </div>
             </div>
         </div>
         <p id="angleText">Klik tombol untuk mulai</p>
@@ -159,7 +165,7 @@
     <div class="footer-note">
         <strong>Pemberitahuan:</strong> Jadwal sinkron dengan API Kemenag RI. Selalu dahulukan adzan dari masjid setempat. 
     </div>
-    <p class="copyright">© 2026 Digital Imsakiyah - Versi 5.0</p>
+    <p class="copyright">© 2026 Digital Imsakiyah - Versi 5.2</p>
 </div>
 
     <audio id="adzanAudio" src="https://www.islamcan.com/audio/adhan/azan1.mp3"></audio>
