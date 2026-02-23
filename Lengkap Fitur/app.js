@@ -1,4 +1,4 @@
-const APP_VERSION = "5.2"; // Naikkan versi karena banyak fitur baru
+const APP_VERSION = "5.3"; // Naikkan versi karena banyak fitur baru
 
 function switchPage(page, el) {
     document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
@@ -60,17 +60,21 @@ function showUpdateNotice() {
             title: `<strong>Imsakiyah Pro v${APP_VERSION}</strong>`,
             icon: 'success',
             html: `
-                <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
-                    <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
-                    <p>Alhamdulillah, pembaruan telah tersedia:</p>
-                    <ul style="list-style-type: none; padding-left: 0;">
+                <div style="text-align: left; font-size: 0.95rem; line-height: 1.6; color: var(--text);">
+                    <p>Alhamdulillah, beberapa fitur baru telah hadir untukmu: 🚀</p>
+                    <ul style="list-style-type: none; padding-left: 5px;">
                         <li>🔍 <b>Smart Search:</b> Autocomplete kota lebih cepat.</li>
                         <li>🤔 <b>Saran Typo:</b> "Maksud Anda" untuk koreksi nama kota.</li>
                         <li>🧭 <b>Kompas Fix:</b> Posisi piringan kini presisi di tengah.</li>
                         <li>📳 <b>Haptic:</b> HP bergetar saat tepat arah Kiblat.</li>
                         <li>🌙 <b>Dark Mode:</b> Kontras terjemahan lebih sejuk.</li>
                         <li>❌ <b>Quick Clear:</b> Hapus pencarian sekali klik.</li>
+                        <li>📲 <b>PWA Ready:</b> Aplikasi kini bisa diinstal langsung di HP!</li>
+                        <li>📡 <b>Offline Mode:</b> Tetap bisa diakses meski tanpa internet.</li>
                     </ul>
+                    <p style="margin-top: 15px; font-style: italic; font-size: 0.85rem; color: #888;">
+                        *Klik ikon 'Install' di browser untuk menyimpan ke layar utama.
+                    </p>
                 </div>
             `,
             confirmButtonText: 'Mulai Menjelajah!',
