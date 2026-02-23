@@ -1,99 +1,249 @@
-let qiblaAngle = 295; 
-let isVibrating = false;
+let daftarKota = [], fuse, countdownInterval;
 
-function initKiblat() {
-    const status = document.getElementById('angleText');
-    status.innerText = "Mendeteksi Lokasi...";
+async function initJadwal() {
+    try {
+        const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
+        const d = await res.json();
+        daftarKota = d.data;
+        // Inisialisasi Fuse untuk pencarian yang lebih cerdas
+        fuse = new Fuse(daftarKota, { keys: ['lokasi'], threshold: 0.4 });
+        
+        const lastId = localStorage.getItem('lastId');
+        if(lastId) pilihKota(lastId, localStorage.getItem('lastNama'));
+    } catch(e) { console.error("Gagal load kota"); }
+}
 
-    // 1. Ambil Lokasi untuk hitung sudut kiblat
-    navigator.geolocation.getCurrentPosition(pos => {
+// FIX: Pencarian Kota dengan fitur "Maksud Anda" jika typo
+document.getElementById('inputKota').addEventListener('input', function() {
+    const list = document.getElementById('listKota');
+    const clearBtn = document.getElementById('clearSearchKota'); 
+    const val = this.value;
+
+    if (clearBtn) clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+
+    if(val.length < 1) { 
+        list.style.display = 'none'; 
+        return; 
+    }
+
+    const results = fuse.search(val);
+    
+    if (results.length > 0) {
+        // Map hasil pencarian
+        list.innerHTML = results.slice(0, 8).map((r, index) => {
+            // Jika index 0 (paling atas), tambahkan teks "Maksud anda:"
+            const label = index === 0 ? `<span style="color: var(--primary); font-weight: bold; margin-right: 5px;">Maksud anda:</span>` : '';
+            
+            return `
+                <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')" style="display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer;">
+                    <i class="fas fa-map-marker-alt" style="margin-right:12px; color: #999;"></i>
+                    <div style="color: var(--text); font-weight: 500;">
+                        ${label}${r.item.lokasi}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        list.style.display = 'block';
+    } else {
+        list.style.display = 'none';
+    }
+});
+
+// FUNGSI FIX: Menghapus input dan menutup daftar (Fungsi untuk tombol X)
+function clearInputKota() {
+    const input = document.getElementById('inputKota');
+    const list = document.getElementById('listKota');
+    const clearBtn = document.getElementById('clearSearchKota');
+
+    input.value = '';
+    list.style.display = 'none';
+    list.innerHTML = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    input.focus();
+}
+
+async function pilihKota(id, nama) {
+    // Reset tampilan saat memilih
+    const input = document.getElementById('inputKota');
+    const list = document.getElementById('listKota');
+    
+    input.value = nama;
+    list.style.display = 'none';
+    
+    // Simpan ke LocalStorage
+    localStorage.setItem('lastId', id);
+    localStorage.setItem('lastNama', nama);
+
+    const t = new Date();
+    try {
+        const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()}`);
+        const d = await res.json();
+        const j = d.data.jadwal;
+
+        // Update UI Jadwal
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('resKota').innerText = nama;
+        document.getElementById('resImsak').innerText = j.imsak;
+        document.getElementById('vSu').innerText = j.subuh;
+        document.getElementById('vDz').innerText = j.dzuhur;
+        document.getElementById('vAs').innerText = j.ashar;
+        document.getElementById('vMa').innerText = j.maghrib;
+        document.getElementById('vIs').innerText = j.isya;
+
+        startCountdown(j.imsak, j.maghrib);
+    } catch (e) {
+        console.error("Gagal mengambil jadwal");
+    }
+}
+
+function startCountdown(imsakT, maghribT) {
+    if(countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        const now = new Date();
+        const parse = (t) => { 
+            const [h,m] = t.split(':'); 
+            const d = new Date(); 
+            d.setHours(h,m,0,0); 
+            return d; 
+        };
+        
+        const tImsak = parse(imsakT);
+        const tMaghrib = parse(maghribT);
+        let target, label;
+
+        if(now < tImsak) { 
+            target = tImsak; 
+            label = "MENUJU IMSAK"; 
+        } else if(now < tMaghrib) { 
+            target = tMaghrib; 
+            label = "MENUJU BUKA PUASA"; 
+        } else { 
+            target = new Date(tImsak.getTime() + 86400000); 
+            label = "MENUJU IMSAK BESOK"; 
+        }
+
+        const diff = target - now;
+        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
+        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+        
+        document.getElementById('labelCount').innerText = label;
+        document.getElementById('textCount').innerText = `${h}:${m}:${s}`;
+        
+        // Trigger Adzan/Notif
+        if(diff < 1000 && label === "MENUJU BUKA PUASA") {
+            const audio = document.getElementById('adzanAudio');
+            if(audio) audio.play();
+            const notif = document.getElementById('notifPopup');
+            if(notif) notif.style.display = 'block';
+        }
+    }, 1000);
+}
+
+// GPS LOGIC (Sudah termasuk Integrasi ke pilihKota)
+function getLocation() {
+    const btn = document.getElementById('btnGps');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi...';
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        
-        const latK = 21.4225 * Math.PI/180;
-        const lngK = 39.8262 * Math.PI/180;
-        const latP = lat * Math.PI/180;
-        const lngP = lng * Math.PI/180;
+        const lon = pos.coords.longitude;
 
-        const y = Math.sin(lngK - lngP);
-        const x = Math.cos(latP) * Math.tan(latK) - Math.sin(latP) * Math.cos(lngK - lngP);
-        qiblaAngle = Math.atan2(y, x) * 180 / Math.PI;
-        if(qiblaAngle < 0) qiblaAngle += 360;
-
-        status.innerHTML = `Sudut Kiblat: <b>${Math.round(qiblaAngle)}°</b>`;
-        
-        // 2. Minta Izin Sensor Magnetometer (Penting untuk iOS)
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-                .then(response => {
-                    if (response == 'granted') {
-                        startCompass();
-                    } else {
-                        alert("Izin sensor ditolak.");
-                    }
-                })
-                .catch(console.error);
-        } else {
-            startCompass(); // Untuk Android / Browser Desktop
-        }
-    }, () => {
-        status.innerText = "Gagal akses GPS.";
-    });
-}
-
-function startCompass() {
-    // Gunakan event 'deviceorientationabsolute' agar lebih akurat terhadap utara sejati
-    if ('ondeviceorientationabsolute' in window) {
-        window.addEventListener('deviceorientationabsolute', handleCompass);
-    } else {
-        window.addEventListener('deviceorientation', handleCompass);
-    }
-}
-
-function handleCompass(e) {
-    let alpha = e.alpha; // Nilai mentah dari sensor
-    let heading = 0;
-
-    // 1. Deteksi Heading (Arah Utara)
-    if (e.webkitCompassHeading) {
-        // Khusus iOS (Sudah mengarah ke utara sejati)
-        heading = e.webkitCompassHeading;
-    } else if (e.absolute || e.type === 'deviceorientationabsolute') {
-        // Android / Browser yang mendukung orientasi absolut
-        heading = 360 - alpha;
-    } else {
-        // Laptop biasanya masuk ke sini (heading tetap 0 karena sensor tidak ada)
-        heading = alpha; 
-    }
-
-    if (heading !== null) {
-        const compass = document.getElementById('compassImg');
-        
-        /* RUMUS:
-           - heading: arah HP sekarang terhadap utara
-           - qiblaAngle: arah Ka'bah terhadap utara
-           Agar jarum/piringan menunjuk ke Ka'bah di posisi 'Atas' (0°), 
-           maka rotasi adalah selisihnya.
-        */
-        const rotation = qiblaAngle - heading;
-        
-        // Gunakan transisi smooth agar tidak patah-patah
-        compass.style.transform = `rotate(${rotation}deg)`;
-
-        // 2. Logika Getar & Indikator (Tepat di sudut 0 derajat)
-        // Kita normalize sudut agar berada di rentang 0-360
-        const normalizedRotation = (rotation % 360 + 360) % 360;
-        
-        // Jika sudut mendekati 0 atau 360 (artinya mengarah tepat ke Ka'bah)
-        if (normalizedRotation < 3 || normalizedRotation > 357) {
-            if (!isVibrating) {
-                if (navigator.vibrate) navigator.vibrate(50);
-                isVibrating = true;
-                document.querySelector('.kaaba-mark').style.filter = "drop-shadow(0 0 10px #e63946) brightness(1.5)";
+        try {
+            const res = await fetch(`https://api.myquran.com/v2/sholat/kota/lokasi/${lat}/${lon}`);
+            const data = await res.json();
+            
+            if(data.status && data.data) {
+                pilihKota(data.data.id, data.data.lokasi);
+                Swal.fire({ title: 'Lokasi Ditemukan', text: data.data.lokasi, icon: 'success', timer: 1500, showConfirmButton: false });
+            } else {
+                // Fallback ke OpenStreetMap jika API MyQuran tidak menemukan ID Kota
+                const osm = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const resOsm = await osm.json();
+                const namaWilayah = resOsm.address.city || resOsm.address.town || resOsm.address.county || "";
+                
+                if(namaWilayah) {
+                    const hasilPencarian = fuse.search(namaWilayah);
+                    if (hasilPencarian.length > 0) {
+                        const kotaTerpilih = hasilPencarian[0].item;
+                        pilihKota(kotaTerpilih.id, kotaTerpilih.lokasi);
+                        Swal.fire({
+                            title: "Lokasi Disesuaikan",
+                            text: `Terdeteksi di ${namaWilayah}, disesuaikan ke ${kotaTerpilih.lokasi}`,
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else { throw new Error(); }
+                } else { throw new Error(); }
             }
-        } else {
-            isVibrating = false;
-            document.querySelector('.kaaba-mark').style.filter = "none";
+        } catch (e) {
+            Swal.fire("Info", "Gagal deteksi otomatis. Silakan pilih kota manual.", "warning");
         }
+        resetGpsBtn();
+    }, () => {
+        Swal.fire("Gagal", "Akses GPS ditolak.", "error");
+        resetGpsBtn();
+    }, { timeout: 10000 });
+}
+
+function resetGpsBtn() {
+    const btn = document.getElementById('btnGps');
+    if(btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-location-arrow"></i> Deteksi Lokasi Otomatis';
     }
 }
+
+// Fitur Download Poster (Ramadhan 2026)
+async function downloadPoster() {
+    const id = localStorage.getItem('lastId');
+    const nama = localStorage.getItem('lastNama');
+    if (!id) return Swal.fire("Pilih Kota", "Pilih lokasi terlebih dahulu.", "warning");
+
+    Swal.fire({ title: 'Menyusun Poster...', text: 'Mengolah data 30 hari', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    try {
+        const [resFeb, resMar] = await Promise.all([
+            fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/2026/02`),
+            fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/2026/03`)
+        ]);
+        
+        const dataFeb = await resFeb.json();
+        const dataMar = await resMar.json();
+        const pBody = document.getElementById('pBody');
+        
+        document.getElementById('pKota').innerText = "KOTA/KAB. " + nama.toUpperCase();
+
+        const semuaHari = [...dataFeb.data.jadwal, ...dataMar.data.jadwal];
+        const jadwalRamadhan = semuaHari.filter(item => item.date >= "2026-02-18" && item.date <= "2026-03-19");
+
+        pBody.innerHTML = jadwalRamadhan.map((d, i) => {
+            const tgl = d.date.split('-').reverse().slice(0,2).join('/'); 
+            return `<tr>
+                <td>${i+1}</td>
+                <td><b>${tgl}</b></td>
+                <td style="color:#d32f2f">${d.imsak}</td>
+                <td>${d.subuh}</td>
+                <td>${d.dzuhur}</td>
+                <td>${d.ashar}</td>
+                <td style="background:#fff9c4">${d.maghrib}</td>
+                <td>${d.isya}</td>
+            </tr>`;
+        }).join('');
+
+        setTimeout(() => {
+            html2canvas(document.querySelector("#poster-area"), { scale: 3, useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Jadwal_Ramadhan_${nama.replace(/ /g,'_')}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                Swal.close();
+            });
+        }, 1000);
+    } catch(e) { Swal.fire("Gagal", "Error mengambil data poster.", "error"); }
+}
+
+initJadwal();
