@@ -1,4 +1,4 @@
-const APP_VERSION = "5.3"; // Naikkan versi karena banyak fitur baru
+const APP_VERSION = "5.4"; // Naikkan versi karena banyak fitur baru
 
 function switchPage(page, el) {
     document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
@@ -54,44 +54,46 @@ if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-t
 // 1. Fungsi Pop-up Update Otomatis
 function showUpdateNotice() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+    const isDark = document.body.classList.contains('dark-theme');
 
     if (lastSeenVersion !== APP_VERSION) {
         Swal.fire({
             title: `<strong>Imsakiyah Pro v${APP_VERSION}</strong>`,
-            icon: 'success',
             html: `
-                <div style="text-align: left; font-size: 0.95rem; line-height: 1.6; color: var(--text);">
-                    <p>Alhamdulillah, beberapa fitur baru telah hadir untukmu: 🚀</p>
-                    <ul style="list-style-type: none; padding-left: 5px;">
-                        <li>🔍 <b>Smart Search:</b> Autocomplete kota lebih cepat.</li>
-                        <li>🤔 <b>Saran Typo:</b> "Maksud Anda" untuk koreksi nama kota.</li>
-                        <li>🧭 <b>Kompas Fix:</b> Posisi piringan kini presisi di tengah.</li>
-                        <li>📳 <b>Haptic:</b> HP bergetar saat tepat arah Kiblat.</li>
-                        <li>🌙 <b>Dark Mode:</b> Kontras terjemahan lebih sejuk.</li>
-                        <li>❌ <b>Quick Clear:</b> Hapus pencarian sekali klik.</li>
-                        <li>📲 <b>PWA Ready:</b> Aplikasi kini bisa diinstal langsung di HP!</li>
-                        <li>📡 <b>Offline Mode:</b> Tetap bisa diakses meski tanpa internet.</li>
-                    </ul>
-                    <p style="margin-top: 15px; font-style: italic; font-size: 0.85rem; color: #888;">
-                        *Klik ikon 'Install' di browser untuk menyimpan ke layar utama.
-                    </p>
-                </div>
-            `,
-            confirmButtonText: 'Mulai Menjelajah!',
-            confirmButtonColor: '#004d40',
-            
-            // OTOMATISASI WARNA BERDASARKAN TEMA
-            background: isDarkMode ? '#1e1e1e' : '#ffffff',
-            color: isDarkMode ? '#ffffff' : '#333333',
-            
-            showClass: {
-                popup: 'animate__animated animate__fadeInUp'
-            }
-        }).then(() => {
-            // Simpan versi agar tidak muncul lagi kecuali ada update baru
-            localStorage.setItem('lastSeenVersion', APP_VERSION);
-        });
-    }
+            <div style="text-align: left; font-size: 0.92rem; line-height: 1.6; font-family: sans-serif;">
+                <p>Alhamdulillah, fitur yang kamu minta sudah hadir: 🚀</p>
+                <ul style="list-style-type: none; padding-left: 5px; margin: 10px 0;">
+                    <li style="margin-bottom: 8px;">📖 <b>Smart Highlight:</b> Ayat menyala otomatis saat dibaca.</li>
+                    <li style="margin-bottom: 8px;">📜 <b>Auto-Scroll:</b> Layar geser sendiri mengikuti qori.</li>
+                    <li style="margin-bottom: 8px;">🔄 <b>Auto-Next Surah:</b> Lanjut ngaji otomatis ke surah berikutnya.</li>
+                    <li style="margin-bottom: 8px;">🔍 <b>Smart Search:</b> Cari kota & surah jauh lebih cepat.</li>
+                    <li style="margin-bottom: 8px;">📳 <b>Haptic:</b> Getaran halus saat tepat arah Kiblat.</li>
+                    <li style="margin-bottom: 8px;">🌙 <b>Dark Mode Fix:</b> Kontras highlight tetap jelas di mode gelap.</li>
+                    <li style="margin-bottom: 8px;">📲 <b>PWA Ready:</b> Bisa di-install di HP & akses Offline.</li>
+                </ul>
+                <p style="font-size: 0.8rem; color: #888; border-top: 1px solid #eee; pt-2; margin-top: 10px;">
+                    *Gunakan tombol "Putar Per Ayat" untuk memulai fitur Auto-Play.
+                </p>
+            </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Siap, Cobain! ✅',
+        confirmButtonColor: '#004d40',
+        
+        // Adaptasi warna Pop-up terhadap tema
+        background: isDark ? '#1e1e1e' : '#ffffff',
+        color: isDark ? '#ffffff' : '#333333',
+        
+        showClass: {
+            popup: 'animate__animated animate__fadeInUp'
+        }
+    });
+}
+// Tambahkan pengecekan ini di bagian paling bawah file JS agar pop-up muncul sekali saja
+if (localStorage.getItem('appVersion') !== '5.4') {
+    setTimeout(showUpdatePopup, 2000); // Muncul setelah 2 detik
+    localStorage.setItem('appVersion', '5.4');
+}
 }
 
 // 2. Fungsi Share WhatsApp (Inisialisasi)
