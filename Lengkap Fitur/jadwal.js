@@ -50,6 +50,11 @@ document.getElementById('inputKota').addEventListener('input', function() {
     }
 });
 
+const textShare = `Jadwal Imsakiyah ${nama}:\nImsak: ${j.imsak}\nSubuh: ${j.subuh}\nMaghrib: ${j.maghrib}\n\nCek Realtime: ${window.location.href}`;
+        document.getElementById('waShare').href = `https://wa.me/?text=${encodeURIComponent(textShare)}`;
+
+        startLogic(j.imsak, j.maghrib);
+
 // FUNGSI FIX: Menghapus input dan menutup daftar (Fungsi untuk tombol X)
 function clearInputKota() {
     const input = document.getElementById('inputKota');
@@ -247,3 +252,4 @@ async function downloadPoster() {
 }
 
 initJadwal();
+
