@@ -274,4 +274,28 @@ body.dark-theme .ayat-highlight-active {
 .poster-table td { border: 1px solid #ddd; padding: 6px; text-align: center; font-size: 12px; font-weight: bold; }
 
 .footer { text-align: center; padding: 30px 20px 120px 20px; background: #fdfdfd; border-top: 1px solid #eee; }
-.btn-share { display: inline-flex; align-items: center; gap: 8px; background: #25d366; color: white !important; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; }
+.btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #25D366;
+    color: white !important;
+    padding: 12px 24px;
+    border-radius: 50px; /* Membuat ujungnya bulat (pill shape) */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    
+    /* KUNCI AGAR TIDAK KEPANJANGAN */
+    width: fit-content;    /* Lebar mengikuti isi teks */
+    margin: 20px auto;     /* Tengah secara horizontal dan beri jarak atas-bawah */
+    min-width: 200px;      /* Batas lebar minimal agar tetap enak diklik */
+    
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    transition: 0.3s;
+}
+
+.btn-share:active {
+    transform: scale(0.95); /* Efek membal saat ditekan di HP */
+}
