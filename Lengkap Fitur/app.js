@@ -79,7 +79,11 @@ function showUpdateNotice() {
             `,
             confirmButtonText: 'Mulai Menjelajah!',
             confirmButtonColor: '#004d40',
-            backdrop: `rgba(0, 77, 64, 0.2)`,
+            
+            // OTOMATISASI WARNA BERDASARKAN TEMA
+            background: isDarkMode ? '#1e1e1e' : '#ffffff',
+            color: isDarkMode ? '#ffffff' : '#333333',
+            
             showClass: {
                 popup: 'animate__animated animate__fadeInUp'
             }
