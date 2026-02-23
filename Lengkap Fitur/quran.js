@@ -1,5 +1,8 @@
 let allSurah = [], fuseSurah;
 let currentSurahNo = 1;
+let currentAyatIndex = 0;
+let isPlaying = false;
+let ayatAudio = new Audio();
 
 async function initQuran() {
     const listContainer = document.getElementById('surahList');
@@ -20,7 +23,7 @@ async function initQuran() {
         renderQuran(allSurah);
     } catch (e) {
         console.error("Fetch Error:", e);
-        listContainer.innerHTML = `<p style="color:red; text-align:center; padding:20px;">Koneksi API Terblokir. Periksa internet kamu.</p>`;
+        listContainer.innerHTML = `<p style="color:red; text-align:center; padding:20px;">Koneksi API Terblokir.</p>`;
     }
 }
 
@@ -40,34 +43,23 @@ function renderQuran(data) {
     `).join('');
 }
 
-function filterSurah() {
-    const input = document.getElementById('cariSurah');
-    const clearBtn = document.getElementById('clearSearch');
-    const val = input.value.toLowerCase();
-    
-    clearBtn.style.display = val ? 'block' : 'none';
-
-    if (!val) {
-        renderQuran(allSurah);
-        return;
-    }
-
-    if (fuseSurah) {
-        const hasilCari = fuseSurah.search(val).map(r => r.item);
-        renderQuran(hasilCari);
-    }
-}
-
-function clearSearch() {
-    const input = document.getElementById('cariSurah');
-    input.value = '';
-    filterSurah();
-    input.focus();
-}
-
-async function loadAyat(no, nama) {
+// Update fungsi loadAyat untuk menerima parameter autoPlay
+async function loadAyat(no, nama, autoPlay = false) {
     currentSurahNo = no;
-    Swal.fire({ title: 'Memuat Surah ' + nama, didOpen: () => Swal.showLoading() });
+    currentAyatIndex = 0;
+    
+    // Matikan audio lama jika bukan perpindahan otomatis
+    if (!autoPlay) {
+        isPlaying = false;
+        ayatAudio.pause();
+    }
+    
+    Swal.fire({ 
+        title: 'Memuat Surah ' + nama, 
+        timer: 800, 
+        showConfirmButton: false, 
+        didOpen: () => Swal.showLoading() 
+    });
     
     try {
         const res = await fetch(`https://equran.id/api/v2/surat/${no}`);
@@ -77,11 +69,10 @@ async function loadAyat(no, nama) {
 
         document.getElementById('quranHeader').style.display = 'none';
         document.getElementById('surahList').style.display = 'none';
-        
         const ayatView = document.getElementById('ayatView');
         ayatView.style.display = 'block';
         
-        // Render Header Ayat dengan Navigasi & Audio
+        // Render Header Ayat dengan Navigasi yang dikembalikan
         ayatView.innerHTML = `
             <div class="quran-nav-header">
                 <button class="btn-nav-main" onclick="backToSurah()">← Daftar Surah</button>
@@ -93,21 +84,17 @@ async function loadAyat(no, nama) {
 
             <div class="audio-player-card">
                 <h3>${data.namaLatin} (${data.nama})</h3>
-                <p>${data.arti}</p>
-                <audio id="murottal" src="${data.audioFull['05']}"></audio>
-                <button id="btnPlay" class="btn-play-murottal" onclick="toggleAudio()">
-                    <i class="fas fa-play"></i> Putar Murottal
+                <p id="audioStatus">${autoPlay ? '✨ Sedang Mengaji...' : 'Siap diputar'}</p>
+                <button id="btnPlay" class="btn-play-murottal" onclick="toggleSmartAudio()">
+                    <i class="fas fa-${autoPlay ? 'pause' : 'play'}"></i> ${autoPlay ? 'Berhentikan' : 'Putar Ayat'}
                 </button>
             </div>
 
             <div id="isiAyat">
-                ${ayatList.map(a => `
-                    <div class="ayat-box">
+                ${ayatList.map((a, index) => `
+                    <div class="ayat-box" id="ayat-box-${index}" data-audio="${a.audio['05']}">
                         <div class="arabic-container">
-                            <p class="arabic-text-main">
-                                ${a.teksArab} 
-                                <span class="ayat-number-circle">${a.nomorAyat}</span>
-                            </p>
+                            <p class="arabic-text-main">${a.teksArab} <span class="ayat-number-circle">${a.nomorAyat}</span></p>
                         </div>
                         <div class="translation-container">
                             <p class="translation-text-main">${a.teksIndonesia}</p>
@@ -115,7 +102,7 @@ async function loadAyat(no, nama) {
                     </div>
                 `).join('')}
             </div>
-            
+
             <div class="bottom-nav-surah">
                  <button class="btn-nav-side" onclick="navSurah(${no - 1})" ${no <= 1 ? 'disabled' : ''}>Surah Sebelumnya</button>
                  <button class="btn-nav-side" onclick="navSurah(${no + 1})" ${no >= 114 ? 'disabled' : ''}>Surah Selanjutnya</button>
@@ -123,38 +110,83 @@ async function loadAyat(no, nama) {
         `;
         
         window.scrollTo(0, 0);
-        Swal.close();
+
+        // Pasang listener audio
+        ayatAudio.onended = () => {
+            currentAyatIndex++;
+            playSequence(document.querySelectorAll('.ayat-box'));
+        };
+
+        // Jika autoPlay dipicu dari surah sebelumnya, langsung mainkan
+        if (autoPlay) {
+            isPlaying = true;
+            playSequence(document.querySelectorAll('.ayat-box'));
+        }
+
     } catch (e) {
-        Swal.fire("Waduh", "Gagal memuat ayat. Server mungkin sedang down.", "error");
+        console.error("Gagal memuat surah:", e);
+        Swal.fire("Waduh", "Koneksi ke server Al-Quran terputus.", "error");
     }
+}
+
+function toggleSmartAudio() {
+    const btn = document.getElementById('btnPlay');
+    const ayatList = document.querySelectorAll('.ayat-box');
+
+    if (!isPlaying) {
+        isPlaying = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i> Berhentikan';
+        document.getElementById('audioStatus').innerText = "Sedang Mengaji...";
+        playSequence(ayatList);
+    } else {
+        isPlaying = false;
+        ayatAudio.pause();
+        btn.innerHTML = '<i class="fas fa-play"></i> Lanjutkan';
+        document.getElementById('audioStatus').innerText = "Dipause";
+    }
+}
+
+function playSequence(elements) {
+    if (!isPlaying) return;
+
+    document.querySelectorAll('.ayat-box').forEach(el => el.classList.remove('ayat-highlight-active'));
+
+    if (currentAyatIndex < elements.length) {
+        const targetEl = document.getElementById(`ayat-box-${currentAyatIndex}`);
+        const audioUrl = targetEl.getAttribute('data-audio');
+
+        targetEl.classList.add('ayat-highlight-active');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        ayatAudio.src = audioUrl;
+        ayatAudio.play().catch(e => console.log("Autoplay blocked by browser", e));
+    } else {
+        // SURAH SELESAI -> PINDAH & LANGSUNG PUTAR
+        if (currentSurahNo < 114) {
+            const nextNo = currentSurahNo + 1;
+            const nextSurah = allSurah.find(s => s.nomor === nextNo);
+            if (nextSurah) {
+                // Beri jeda 1 detik sebelum pindah surah agar tidak kaget
+                setTimeout(() => {
+                    loadAyat(nextSurah.nomor, nextSurah.namaLatin, true); // true = autoPlay
+                }, 1500);
+            }
+        } else {
+            isPlaying = false;
+            document.getElementById('audioStatus').innerText = "Khatam Al-Quran";
+        }
+    }
+}
+
+function backToSurah() {
+    isPlaying = false;
+    ayatAudio.pause();
+    document.getElementById('quranHeader').style.display = 'block';
+    document.getElementById('surahList').style.display = 'block';
+    document.getElementById('ayatView').style.display = 'none';
 }
 
 function navSurah(no) {
     const surah = allSurah.find(s => s.nomor === no);
     if (surah) loadAyat(surah.nomor, surah.namaLatin);
-}
-
-function toggleAudio() {
-    const audio = document.getElementById('murottal');
-    const btn = document.getElementById('btnPlay');
-    if (audio.paused) {
-        audio.play();
-        btn.innerHTML = '<i class="fas fa-pause"></i> Berhentikan';
-        btn.classList.add('is-playing');
-    } else {
-        audio.pause();
-        btn.innerHTML = '<i class="fas fa-play"></i> Putar Murottal';
-        btn.classList.remove('is-playing');
-    }
-}
-
-function backToSurah() {
-    // Matikan audio jika masih bunyi saat kembali
-    const audio = document.getElementById('murottal');
-    if(audio) audio.pause();
-    
-    document.getElementById('quranHeader').style.display = 'block';
-    document.getElementById('surahList').style.display = 'block';
-    document.getElementById('ayatView').style.display = 'none';
-    window.scrollTo(0, 0);
 }
