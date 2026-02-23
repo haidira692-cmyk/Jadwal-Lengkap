@@ -140,12 +140,72 @@ input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid var(--borde
 .arabic-name { font-family: 'Amiri', serif; font-size: 1.4rem; color: var(--primary); margin-left: auto; }
 
 #ayatView { max-width: 700px; margin: 0 auto; padding: 20px; background: #fff; min-height: 100vh; padding-bottom: 100px; }
+.audio-active-highlight {
+    background: rgba(0, 77, 64, 0.15) !important;
+    border-right: 6px solid #004d40 !important; /* Tanda garis di kanan */
+    transform: scale(1.02); /* Sedikit membesar agar menonjol */
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.dark-theme .audio-active-highlight {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-right: 6px solid #80cbc4 !important;
+}
+.ayat-box {
+    transition: all 0.4s ease;
+    border-left: 4px solid transparent;
+}
+
+/* Mode Terang */
+.ayat-highlight-active {
+    background-color: rgba(0, 77, 64, 0.15) !important;
+    border-left: 5px solid #004d40 !important;
+    transition: all 0.3s ease;
+}
+
+/* Pastikan ini ada agar mode gelap terdeteksi benar */
+body.dark-theme .ayat-box {
+    border-bottom: 1px solid #333;
+}
+
+/* Warna Highlight yang menyala di mode gelap */
+body.dark-theme .ayat-highlight-active {
+    background-color: rgba(128, 203, 196, 0.25) !important; /* Hijau muda transparan */
+    border-left: 5px solid #80cbc4 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(128, 203, 196, 0.1);
+}
 
 .quran-nav-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
 .nav-prev-next { display: flex; gap: 10px; width: 100%; }
-.btn-nav-main, .btn-nav-side { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-nav-main { width: 100%; padding: 14px; background: #f0f0f0; color: #333; }
-.btn-nav-side { flex: 1; padding: 12px; background: var(--primary); color: white; }
+
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--card); /* Mengikuti tema dark/light */
+    padding: 10px 0;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.nav-item {
+    flex: 1; /* Memberi ruang yang sama rata untuk 5 menu */
+    text-align: center;
+    font-size: 0.7rem; /* Perkecil sedikit font agar muat 5 menu */
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+    margin-bottom: 3px;
+    display: block;
+}
 
 .audio-player-card { background: linear-gradient(135deg, var(--primary), #00695c); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
 .btn-play-murottal { background: white; color: var(--primary); border: none; padding: 10px 25px; border-radius: 50px; margin-top: 15px; font-weight: bold; cursor: pointer; }
