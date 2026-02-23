@@ -155,15 +155,55 @@ input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid var(--borde
 .translation-container, .translation-text { background: #f9f9f9; padding: 15px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 1.1rem; color: #555; line-height: 1.8; }
 
 /* --- COMPASS --- */
-.compass-wrapper { width: 250px; height: 250px; margin: 30px auto; position: relative; background: #f8f9fa; border-radius: 50%; box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
-.kaaba-mark { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: #e63946; font-size: 24px; z-index: 20; }
+/* Container Utama Kompas */
+.compass-wrapper {
+    width: 280px; /* Ukuran bisa disesuaikan */
+    height: 280px;
+    margin: 30px auto;
+    position: relative;
+    background: var(--card);
+    border-radius: 50%;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--border);
+    overflow: visible; /* Agar tanda merah di atas tidak terpotong */
+}
+
+/* Penanda Ka'bah (Tetap di Atas Tengah) */
+.kaaba-mark {
+    position: absolute;
+    top: -15px; /* Sesuaikan posisi naik turunnya */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #e63946;
+    font-size: 30px;
+    z-index: 20;
+    pointer-events: none; /* Agar tidak menghalangi klik */
+}
+
+/* Piringan Kompas yang Berputar */
 #compassImg {
     width: 90%;
     height: 90%;
+    position: absolute; /* Mengunci posisi di tengah wrapper */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-out;
+}
+
+/* Piringan Dial (Garis-garis derajat) */
+.compass-dial {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid #3d475f;
+    box-sizing: border-box; /* Sangat penting agar border tidak menambah ukuran */
+    background-image: repeating-conic-gradient(from -1deg, #3d475f 0 2deg, transparent 2deg 30deg);
     position: relative;
-    transition: transform 0.2s ease-out; /* Perhalus gerakan sensor */
-    transform-origin: center center;
-}.compass-dial { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #3d475f; background-image: repeating-conic-gradient(from -1deg, #3d475f 0 2deg, transparent 2deg 30deg); position: relative; }
+}
 .compass-dial::before { content: "N"; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); color: #e63946; font-weight: bold; font-size: 18px; }
 .compass-needle { width: 12px; height: 80%; background: linear-gradient(to bottom, #e63946 50%, #3d475f 50%); position: absolute; top: 10%; left: calc(50% - 6px); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
 
