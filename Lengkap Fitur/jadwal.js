@@ -13,24 +13,26 @@ async function initJadwal() {
     } catch(e) { console.error("Gagal load kota"); }
 }
 
-// FIX: Pencarian Kota dengan Tombol X dan Daftar Melayang
+// FIX: Pencarian Kota dengan fitur "Maksud Anda" jika typo
 document.getElementById('inputKota').addEventListener('input', function() {
     const list = document.getElementById('listKota');
-    const clearBtn = document.getElementById('clearSearchKota'); // Pastikan ID ini ada di HTML
+    const clearBtn = document.getElementById('clearSearchKota'); 
     const val = this.value;
 
     // Tampilkan/Sembunyikan tombol X
     if (clearBtn) clearBtn.style.display = val.length > 0 ? 'block' : 'none';
 
-    if(val.length < 2) { 
+    if(val.length < 1) { 
         list.style.display = 'none'; 
         return; 
     }
 
-    const results = fuse.search(val).slice(0, 8); // Tampilkan maksimal 8 hasil
+    // Lakukan pencarian
+    const results = fuse.search(val);
     
     if (results.length > 0) {
-        list.innerHTML = results.map(r => `
+        // Jika ada hasil yang cocok
+        list.innerHTML = results.slice(0, 8).map(r => `
             <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')">
                 <i class="fas fa-map-marker-alt" style="margin-right:10px; color:#ccc;"></i>
                 ${r.item.lokasi}
@@ -38,7 +40,24 @@ document.getElementById('inputKota').addEventListener('input', function() {
         `).join('');
         list.style.display = 'block';
     } else {
-        list.style.display = 'none';
+        // JIKA TYPO / TIDAK ADA HASIL: Gunakan threshold yang lebih longgar untuk saran
+        const suggestions = fuse.search(val, { limit: 3 }); 
+        
+        if (suggestions.length > 0) {
+            list.innerHTML = `
+                <div style="padding: 10px; font-size: 0.8rem; color: #888; border-bottom: 1px solid #eee;">
+                    🔍 Kota yang anda maksud:
+                </div>
+            ` + suggestions.map(r => `
+                <div class="autocomplete-item" onclick="pilihKota('${r.item.id}','${r.item.lokasi}')">
+                    <i class="fas fa-question-circle" style="margin-right:10px; color:#ffc107;"></i>
+                    ${r.item.lokasi}
+                </div>
+            `).join('');
+            list.style.display = 'block';
+        } else {
+            list.style.display = 'none';
+        }
     }
 });
 
