@@ -1,4 +1,4 @@
-const APP_VERSION = "5.4"; // Naikkan versi karena banyak fitur baru
+const APP_VERSION = "5.6"; // Naikkan versi karena banyak fitur baru
 
 function switchPage(page, el) {
     document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
@@ -43,7 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inisialisasi fitur
     showUpdateNotice();
-    updateWaLink(); // Fungsi baru untuk link awal
+
+    // Event Listener Global untuk fitur Share Promosi
+    document.addEventListener('click', (e) => {
+        const shareBtn = e.target.closest('#waShare');
+        if (shareBtn) {
+            e.preventDefault();
+            shareKeWhatsApp();
+        }
+    });
 });
 
 setInterval(() => {
@@ -54,68 +62,78 @@ setInterval(() => {
     if(dateEl) dateEl.innerText = n.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 }, 1000);
 
-// --- PERBAIKAN FITUR POP-UP UPDATE ---
+// --- FITUR SHARE PROMOSI (FIX TERPOTONG) ---
+function shareKeWhatsApp() {
+    const elKota = document.getElementById('resKota');
+    const elImsak = document.getElementById('resImsak');
+    const elMaghrib = document.getElementById('vMa');
+
+    const namaKota = elKota ? elKota.innerText : "";
+    const jamImsak = elImsak ? elImsak.innerText : "";
+    const jamMaghrib = elMaghrib ? elMaghrib.innerText : "";
+    const urlWeb = window.location.origin + window.location.pathname;
+    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    let pesan = "";
+
+    if (namaKota && jamImsak !== "--:--" && jamImsak !== "") {
+        // Gunakan \n untuk baris baru, lalu kita encode di bawah
+        pesan = `*JADWAL IMSAKIYAH & SHALAT*\n` +
+                `📍 Lokasi: *${namaKota.toUpperCase()}*\n` +
+                `🗓️ Tanggal: ${tgl}\n\n` +
+                `• Imsak: *${jamImsak}*\n` +
+                `• Maghrib/Buka: *${jamMaghrib}*\n\n` +
+                `Cek jadwal realtime, Al-Qur'an digital & download poster Ramadhan di sini:\n` +
+                `👉 ${urlWeb}`;
+    } else {
+        pesan = `*Rekomendasi Web Imsakiyah & Al-Qur'an 2026* 🌙\n\n` +
+                `Yuk siapin Ramadhan kamu dengan web yang fiturnya lengkap ini:\n` +
+                `✅ Jadwal Shalat Realtime\n` +
+                `✅ Al-Qur'an Digital & Audio\n` +
+                `✅ Download Poster Jadwal 30 Hari\n\n` +
+                `Buka di sini:\n` +
+                `👉 ${urlWeb}`;
+    }
+
+    // FIX: Menggunakan encodeURIComponent agar karakter & dan spasi tidak memutus teks
+    const waLink = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
+    window.open(waLink, '_blank');
+}
+
+// --- PERBAIKAN FITUR POP-UP UPDATE v5.5 ---
+// --- PERBAIKAN FITUR POP-UP UPDATE v5.5 ---
 function showUpdateNotice() {
     const lastSeenVersion = localStorage.getItem('lastSeenVersion');
     const isDark = document.body.classList.contains('dark-theme');
 
-    // Hanya muncul jika versi berbeda
     if (lastSeenVersion !== APP_VERSION) {
         Swal.fire({
             title: `<strong>Imsakiyah Pro v${APP_VERSION}</strong>`,
             html: `
             <div style="text-align: left; font-size: 0.92rem; line-height: 1.6; font-family: sans-serif;">
-                <p>Alhamdulillah, fitur yang kamu minta sudah hadir: 🚀</p>
+                <p>Alhamdulillah, update v5.5 sudah siap menemani ibadahmu! Apa saja yang baru? 🌙</p>
                 <ul style="list-style-type: none; padding-left: 5px; margin: 10px 0;">
-                    <li style="margin-bottom: 8px;">📖 <b>Smart Highlight:</b> Ayat menyala otomatis saat dibaca.</li>
-                    <li style="margin-bottom: 8px;">📜 <b>Auto-Scroll:</b> Layar geser sendiri mengikuti qori.</li>
-                    <li style="margin-bottom: 8px;">🔄 <b>Auto-Next Surah:</b> Lanjut ngaji otomatis ke surah berikutnya.</li>
-                    <li style="margin-bottom: 8px;">🔍 <b>Smart Search:</b> Cari kota & surah jauh lebih cepat.</li>
-                    <li style="margin-bottom: 8px;">📳 <b>Haptic:</b> Getaran halus saat tepat arah Kiblat.</li>
-                    <li style="margin-bottom: 8px;">🌙 <b>Dark Mode Fix:</b> Kontras highlight tetap jelas di mode gelap.</li>
-                    <li style="margin-bottom: 8px;">📲 <b>PWA Ready:</b> Bisa di-install di HP & akses Offline.</li>
+                    <li style="margin-bottom: 10px;">🎧 <b>Visual Murottal:</b> Kini ada penanda (highlight) otomatis pada ayat yang sedang dibaca.</li>
+                    <li style="margin-bottom: 10px;">📲 <b>Seamless WA Share:</b> Link bagikan jadwal sudah diperbaiki (pesan tidak terpotong lagi).</li>
+                    <li style="margin-bottom: 10px;">🔍 <b>Smart Quran Search:</b> Cari surah jauh lebih akurat dengan teknologi Fuse.js.</li>
+                    <li style="margin-bottom: 10px;">🎨 <b>UI Cleanup:</b> Navigasi surah dan tombol daftar surah kini lebih rapi dan presisi.</li>
                 </ul>
                 <p style="font-size: 0.8rem; color: #888; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px;">
-                    *Gunakan tombol "Putar Per Ayat" untuk memulai fitur Auto-Play.
+                    *Jika tampilan masih berantakan, silakan tekan <b>Ctrl + F5</b> atau hapus cache browser Anda.
                 </p>
             </div>
             `,
             icon: 'success',
-            confirmButtonText: 'Siap, Cobain! ✅',
+            confirmButtonText: 'Siap, Cobain Sekarang! ✅',
             confirmButtonColor: '#004d40',
             background: isDark ? '#1e1e1e' : '#ffffff',
             color: isDark ? '#ffffff' : '#333333',
             allowOutsideClick: false,
-            showClass: { popup: 'animate__animated animate__fadeInUp' }
+            showClass: {
+                popup: 'animate__animated animate__zoomIn'
+            }
         }).then(() => {
-            // Simpan ke localStorage SETELAH user klik tombol OK
             localStorage.setItem('lastSeenVersion', APP_VERSION);
         });
     }
 }
-
-// --- PERBAIKAN FITUR SHARE WA ---
-// Fungsi untuk update link WA secara dinamis sesuai jadwal yang ada
-function updateWaLink() {
-    const waBtn = document.getElementById('waShare');
-    if (!waBtn) return;
-
-    // Ambil data dari UI jika tersedia
-    const kota = document.getElementById('resKota')?.innerText || "";
-    const imsak = document.getElementById('resImsak')?.innerText || "";
-    const maghrib = document.getElementById('vMa')?.innerText || "";
-
-    let text;
-    if (imsak && imsak !== "--:--") {
-        // Jika jadwal sudah ada, bagikan jadwalnya
-        text = `*JADWAL IMSAKIYAH ${kota.toUpperCase()}*%0A🗓️ ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long'})}%0A⏰ Imsak: *${imsak}*%0A⏰ Maghrib: *${maghrib}*%0A%0ACek Jadwal Lengkap: ${window.location.href}`;
-    } else {
-        // Jika belum pilih kota, bagikan link umum
-        text = `Assalamualaikum, cek jadwal Imsakiyah & Al-Quran Digital di sini: ${window.location.href}`;
-    }
-
-    waBtn.href = `https://wa.me/?text=${text}`;
-}
-
-// Pastikan setiap kali pilih kota, link WA ikut terupdate
-// (Tambahkan pemicu updateWaLink() di dalam fungsi pilihKota kamu)
