@@ -190,3 +190,44 @@ function navSurah(no) {
     const surah = allSurah.find(s => s.nomor === no);
     if (surah) loadAyat(surah.nomor, surah.namaLatin);
 }
+
+// --- TEMPEL DI SINI (BAGIAN PALING BAWAH) ---
+
+function filterSurah() {
+    const input = document.getElementById('cariSurah');
+    const clearBtn = document.getElementById('clearSearch');
+    const query = input.value;
+
+    // Tampilkan/Sembunyikan tombol X (clear)
+    if (clearBtn) {
+        clearBtn.style.display = query.length > 0 ? 'block' : 'none';
+    }
+
+    if (!query) {
+        renderQuran(allSurah);
+        return;
+    }
+
+    // Gunakan Fuse untuk pencarian cerdas
+    if (fuseSurah) {
+        const results = fuseSurah.search(query);
+        const filteredData = results.map(r => r.item);
+        renderQuran(filteredData);
+    } else {
+        // Fallback jika fuse belum siap
+        const manualFilter = allSurah.filter(s => 
+            s.namaLatin.toLowerCase().includes(query.toLowerCase()) || 
+            s.arti.toLowerCase().includes(query.toLowerCase())
+        );
+        renderQuran(manualFilter);
+    }
+}
+
+function clearSearch() {
+    const input = document.getElementById('cariSurah');
+    if (input) {
+        input.value = '';
+        filterSurah(); // Memanggil filterSurah untuk mereset daftar ke awal
+        input.focus();
+    }
+}
