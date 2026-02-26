@@ -152,23 +152,20 @@ input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid var(--borde
     background: rgba(255, 255, 255, 0.1) !important;
     border-right: 6px solid #80cbc4 !important;
 }
-.ayat-box {
-    transition: all 0.4s ease;
-    border-left: 4px solid transparent;
-}
-
-/* Mode Terang */
-.ayat-highlight-active {
-    background-color: rgba(0, 77, 64, 0.15) !important;
-    border-left: 5px solid #004d40 !important;
+/* Penanda Ayat yang sedang diputar */
+.ayat-box.ayat-highlight-active {
+    background-color: rgba(0, 77, 64, 0.1) !important; /* Warna hijau transparan */
+    border-left: 5px solid #004d40 !important; /* Garis hijau di pinggir */
+    transform: scale(1.02);
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Pastikan ini ada agar mode gelap terdeteksi benar */
-body.dark-theme .ayat-box {
-    border-bottom: 1px solid #333;
+/* Jika Mode Gelap aktif */
+.dark-theme .ayat-box.ayat-highlight-active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-left: 5px solid #1de9b6 !important;
 }
-
 /* Warna Highlight yang menyala di mode gelap */
 body.dark-theme .ayat-highlight-active {
     background-color: rgba(128, 203, 196, 0.25) !important; /* Hijau muda transparan */
@@ -177,34 +174,52 @@ body.dark-theme .ayat-highlight-active {
     box-shadow: 0 0 15px rgba(128, 203, 196, 0.1);
 }
 
-.quran-nav-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
-.nav-prev-next { display: flex; gap: 10px; width: 100%; }
-
-.bottom-nav {
+/* Container Utama Navigasi */
+.quran-nav-header {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    position: fixed;
-    bottom: 0;
+    flex-direction: column; /* Menyusun vertikal (Daftar Surah di atas) */
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Tombol Daftar Surah (Lebar penuh) */
+.btn-nav-main {
     width: 100%;
-    background: var(--card); /* Mengikuti tema dark/light */
-    padding: 10px 0;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    z-index: 1000;
-}
-
-.nav-item {
-    flex: 1; /* Memberi ruang yang sama rata untuk 5 menu */
-    text-align: center;
-    font-size: 0.7rem; /* Perkecil sedikit font agar muat 5 menu */
+    padding: 12px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    border-radius: 8px;
     cursor: pointer;
-    transition: 0.3s;
+    font-weight: 500;
+    transition: background 0.3s;
 }
 
-.nav-item i {
-    font-size: 1.2rem;
-    margin-bottom: 3px;
-    display: block;
+/* Container Tombol Seb & Sel (Berjajar Horizontal) */
+.nav-prev-next {
+    display: flex;
+    gap: 10px; /* Jarak antar tombol */
+}
+
+/* Tombol navigasi samping */
+.btn-nav-side {
+    flex: 1; /* Membuat tombol kiri dan kanan sama besar */
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Gaya saat tombol disabled (seperti tombol 'Seb' di Al-Fatihah) */
+.btn-nav-side:disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.btn-nav-main:hover, .btn-nav-side:not(:disabled):hover {
+    background-color: #e0e0e0;
 }
 
 .audio-player-card { background: linear-gradient(135deg, var(--primary), #00695c); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
